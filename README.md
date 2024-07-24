@@ -5,7 +5,7 @@ programming is `The Linux Programming Interface by Michael KERRISK`.
 I've read and practiced this book frequently. So on, I decided to 
 share my notes and source codes via GitHub. I've seperated this 
 project into different topics. These are `File IOs and Directories`, 
-`Memory Allocation`, `Time and Timers`, `System andProcesses`, `Signals`,
+`Memory Allocation`, `Time and Timers`, `System and Processes`, `Signals`,
 `Interprocess Communication (IPS)`, `Threads`, and lastly `Sockets`.
 With time, I'm gonna complete this repository. 
 

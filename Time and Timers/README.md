@@ -92,3 +92,55 @@ following two components:
 
 Sometimes, we reffer to process time as the `total CPU time` consumed by
 the process.
+
+
+`-----------------------------------------------------------------------`
+
+
+# TIMERS AND SLEEPING
+
+## Interval Timers
+
+The `setitimer()` system call establishes an `internal timer`, which is a 
+timer that expires at a future point in time and (optionally) at regular 
+intervals after that.
+
+## Setting Timeouts on Blocking Operations
+
+One of real-time timers is to place an upper limit on the time for which
+a blocking system call can remain blocked. For example, we may wish to 
+cancel `read()` from a terminal if the user has not entered a line of 
+input within a certain time.
+
+## Suspending Execution for a Fixed Interval (Sleeping)
+
+Sometimes, we want to suspend execution of a process for a fixed amount of
+time. While it is possible to do this using a combination of `sissuspend()`
+and the timer functions already described, it is easier to use one of the
+sleep functions instead.
+
+## POSIX Clocks
+
+POSIX clocks provide an API for accesing clocks that measure time with
+nanosecond precision.
+
+## POSIX Interval Timers
+
+The classical UNIX interval timers set by `setitimer()` suffer a number of
+limittations:
+
++ We can set only one timer of each of the three types, ITIMER_REAL, 
+  ITIMER_VIRTUAL, and ITIMER_PROF.
++ The only way of being notified of timer expiration is via delivery of 
+  a signal. Furthermore, we can't change the signal that is generated when
+  the timer expires.
++ If an interval timer expires multiple times while the corresponding 
+  signal is blocked, then the signal handler is called once.
++ Timers are limited to microsecond resolution.
+
+## Timers That Notify via File Descriptors: the `timerfd` API
+
+The Linux-specific `timerfd` API creates a timer whose expiration 
+notifications can be read from a file descriptor. This is useful because
+the file descriptor can be monitored along with other descriptions using
+`select()`, `poll()`, and `epoll()`.

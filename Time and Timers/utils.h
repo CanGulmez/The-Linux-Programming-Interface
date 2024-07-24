@@ -8,13 +8,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <signal.h>
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>
 #include <sys/times.h>
-#include <sys/timex.h>
 #include <locale.h>
-
+#include <sys/timerfd.h>
+ 
 void raiseError(char *err_msg, char *err_file, int err_line)
 {
    fprintf(stderr, "\n*** %s (%s::%d) ***\n", err_msg, err_file, err_line);

@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <unistd.h>
 #include <paths.h>
+#include <sys/ioctl.h>
 #include <utmpx.h>
 #include <limits.h>
 #include <sys/capability.h>
@@ -21,6 +22,7 @@
 #include <sys/stat.h>
 #include <sys/fsuid.h>
 #include <sys/wait.h>
+#include <termio.h>
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
@@ -32,12 +34,12 @@
 #include <sys/time.h>
 #include <sys/acct.h>
 
-void raiseError(char *err_msg, char *err_file, int err_line)
+void xxx(char *err_msg, char *err_file, int err_line)
 {
    fprintf(stderr, "\n*** %s (%s::%d) ***\n", err_msg, err_file, err_line);
    exit(EXIT_SUCCESS);  
 }
 
-#define raiseError(err_msg) (raiseError(err_msg, __FILE__, __LINE__))
+#define raiseError(err_msg) (xxx(err_msg, __FILE__, __LINE__))
 
 #endif /* SYSTEM_PROCESSES_H */

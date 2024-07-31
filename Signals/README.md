@@ -174,3 +174,76 @@ circumstances, we can do the following:
   the kernel that the frame for this handler should be created on the alternate
   stack.
 
+
+`----------------------------------------------------------------------------`
+
+
+# SIGNALS: ADVANCED FEATURES
+
+## Core Dump Files
+
+Certain signals cause a process to create a core dump and terminate. A core
+dump is a file containing a memory image of the process at the time it 
+terminated.
+
+## Special Cases for Delivery, Dispositon and Handling
+
+### SIGKILL and SIGSTOP
+
+It is not possible to change the default action for SIGKILL, which always 
+terminates a process, and SIGSTOP, which always stops a process. Both 
+`signal()` and `sigaction` return an error on attempts to change the 
+disposition of these signals. These two signals also can't be blocked.
+
+### SIGCONT and stop signals
+
+The SIGCONT signal is used to continue a process previously stopped by one of
+the stop signals (SIGSTOP, SIGTSTP(), and SIGTTOU). If a process is currently
+stopped, the arrival of a SIGCONT signal always causes the process to resume,
+even if the process is currently blocking SIGCONT. Whenever SIGCONT is 
+delivered to a process, any pending stop signals for the process are discarded
+(i.e., the process never sees them).
+
+## Hardware-Generated Signals
+
+SIGBUS, SIGFPE, SIGILL, and SIGSEGV can be generated as a consequence of a 
+hardware exception or, less usually, by being sent by `kill()`.
+
+## Realtime Signals
+
+Realtime signals have the following advantages over standard signals:
+
++ Realtime signals provide an increment range of signals that can be used for
+  application-defined purposes. Only two standard signals are freely used for 
+  application-defined purposes: `SIGUSR1` and `SIGUSR2`.
++ Realtime signals are queued.
++ When sending a realtime signal, it is possible to specify data (an integer
+  or pointer value) that accompanies the signal. The signal handler is the
+  receiving process can retrieve this data.
++ The order of delivery of different realtime signals is guaranteed.
+
+Realtime signals are not individually identified by different constants in the
+manner of standard signals. A realtime signal number can be reffered to by 
+adding a value to `SIGRTMIN`; for example, the expresseion (`SIGRTMIN` + 1)
+refers to the second realtime signal.
+
+In order for a pair of processes to send and receive realtime signals, SUSv3
+requires the following:
+
++ The sending process sends the signal plus its accompanying data using the
+  `sigqueue` system call.
++ The receiving process establishes a handler for the signal using a call to 
+  `sigaction()` that specifies the SA_SIGINFO flag.
+
+## Waiting for a Signal Using a Mask: `sigsuspend()`
+
+Suppose that the SIGINT signal is delivered after execution of the second
+`sigprocmask()`, but before the `pause()` call. Delivery of the SIGINT signal
+will cause the handler to be invoked, and after the handler returns and main
+program resumes, the `pause()` can will block until a `second` instance of 
+SIGINT is delivered. This defeats the purpose of the code, which was to unblock
+SIGINT and then wait for its `first` occurrence.
+
+To avoid this problem, we require a means of `automically` unblocking a signal
+and suspend the process. 
+

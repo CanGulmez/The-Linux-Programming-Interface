@@ -14,8 +14,10 @@
 #include <dirent.h>
 #include <ftw.h>
 #include <ctype.h>
+#include <sys/select.h>
 #include <pwd.h>
 #include <grp.h>
+#include <poll.h>
 #include <libgen.h>
 #include <getopt.h>
 #include <sys/mount.h>
@@ -30,10 +32,12 @@
 #define file __FILE__
 #define line __LINE__
 
-void raiseError(char *err_msg, char *err_file, int err_line)
+void xxx(char *err_msg, char *err_file, int err_line)
 {
-   fprintf(stderr, "*** %s! (%s:%d) ***\n", err_msg, err_file, err_line);
+   fprintf(stderr, "*** %s (%s::%d) ***\n", err_msg, err_file, err_line);
    exit(EXIT_FAILURE); 
 }
+
+#define raiseError(err_msg) (xxx(err_msg, __FILE__, __LINE__))
 
 #endif /* LINUX_INTERFACE_H */

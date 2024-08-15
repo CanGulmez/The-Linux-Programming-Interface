@@ -26,18 +26,15 @@
 #include <sys/xattr.h>
 #include <sys/inotify.h>
 
-#ifndef LINUX_INTERFACE_H
-#define LINUX_INTERFACE_H
-
-#define file __FILE__
-#define line __LINE__
+#ifndef FILE_IOs_DIRECTORIES_H
+#define FILE_IOs_DIRECTORIES_H
 
 void xxx(char *err_msg, char *err_file, int err_line)
 {
-   fprintf(stderr, "*** %s (%s::%d) ***\n", err_msg, err_file, err_line);
+   fprintf(stderr, "\n*** %s (%s::%d) ***\n", err_msg, err_file, err_line);
    exit(EXIT_FAILURE); 
 }
 
 #define raiseError(err_msg) (xxx(err_msg, __FILE__, __LINE__))
 
-#endif /* LINUX_INTERFACE_H */
+#endif /* FILE_IOs_DIRECTORIES_H */

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This chapter discusses three alternatives to the conventional file 
+This chapter discusses three alternatives to the conventional file   
 I/O model:
 
 + I/O multiplexing (the `select()` and `poll()` system calls);       
@@ -16,7 +16,7 @@ ofter preferable:
 + `I/O multiplexing` allows a process to simultaneously monitor 
   multiple file descriptors to find out whether I/O is possible on
   any of them. The `select()` and `poll()` system calls perform I/O
-  multiplexing
+  multiplexing.
 + `Signal-driven I/O` is a technique whereby a process requests that
   the kernel send it a signal when input is avaliable or data can be
   written on a specified file desciptor. Signal-driven I/O provides

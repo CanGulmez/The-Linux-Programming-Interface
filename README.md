@@ -7,7 +7,6 @@ share my notes and source codes via GitHub. I've seperated this
 project into different topics. These are `File IOs and Directories`, 
 `Memory Allocation`, `Time and Timers`, `System andProcesses`, `Signals`,
 `Interprocess Communication (IPS)`, `Threads`, and lastly `Sockets`.
-With time, I'm gonna complete this repository. 
 
 + `Author`: `Ahmet Can Gulmez`
 + `Email`: `ahmetcangulmez02@gmail.com`

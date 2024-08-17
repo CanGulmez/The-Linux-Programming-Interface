@@ -22,9 +22,12 @@
 #include <getopt.h>
 #include <sys/mount.h>
 #include <sys/uio.h>
+#include <sys/select.h>
 #include <time.h>
 #include <sys/xattr.h>
 #include <sys/inotify.h>
+#include <poll.h>
+#include <sys/epoll.h>
 
 #ifndef FILE_IOs_DIRECTORIES_H
 #define FILE_IOs_DIRECTORIES_H

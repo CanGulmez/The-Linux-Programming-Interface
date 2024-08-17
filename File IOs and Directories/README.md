@@ -37,6 +37,21 @@ be used to actually perform the I/O.
   is I/O activity (e.g., new input) on a file descriptor since it
   was last monitored.
 
+The `epoll` API differs from the other two I/O models in that it can
+employ both level-triggered notification (default) and edge-triggered
+notification.
+
+When we employ level-triggered notification, because the level-
+triggered model allows us to repeat the I/O monitoring operation at
+any time, it is not necassary to perform as much I/O as possible 
+(e.g., read as many bytes as possible) on the file descriptor each 
+time we are notified that a file descriptor is ready.
+
+When we employ edge-triggered notification, we receive  notification
+only when an I/O event occurs. Furthermore, when an I/O event is 
+notified for a file descriptor, we usually don't know how much I/O
+is possible (e.g., how many bytes are avaliable for reading).
+
 ### Employing Nonblocking I/O with Alternative I/O Models
 
 Nonblocking I/O (the `O_NONBLOCK` flag) is often used in conjunction
@@ -45,4 +60,31 @@ with the I/O models described in this chapter.
 ## I/O Multiplexing
 
 I/O multiplexing allows us to simultaneously monitor multiple file
-descriptors to see if I/O is possible on any of them.
+descriptors to see if I/O is possible on any of them. We can use  
+`select()` and `poll()` to monitor file descriptors for regular
+files, terminals, pseudoterminals, pipes, FIFOs, sockets, and some
+types of character devices. Both system calls allow a process either
+to block indefinitely waiting for file descriptors to become ready
+or to specify a timeout on the call.
+
+## Signal-Driven I/O
+
+## The `epoll` API
+
+Like the I/O multiplexing system calls and signal-driven I/O, the 
+Linux `epoll` (event poll) API is used to monitor multiple file 
+descriptors to see if they are ready for I/O. The primary advantages
+of the `epoll` API are the following:
+
++ The performance of `epoll` scales much better that `select()` and
+  `poll()` when monitoring large numbers of file descriptors.
++ The `epoll` API permits either level-triggered or edge-triggered
+  notification.
+
+The performance of `epoll` and signal-driven I/O is similar. Howover,
+`epoll` has some advantages over signal-driven I/O:
+
++ We avoid the complexities of signal handling.
++ We have greater flexibily in specifying what kind of monitoring
+  we want to perform.
+

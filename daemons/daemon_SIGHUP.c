@@ -1,0 +1,110 @@
+/* Using SIGHUP to reinitialize a daemon */
+
+#include "../linux.h"
+
+static const char *LOG_FILE = "/tmp/ds.log";
+static const char *CONFIG_FILE = "/tmp/ds.conf";
+
+static volatile sig_atomic_t hupReceived = 0;
+
+#define BD_NO_CHDIR           01    /* Don't chdir("/") */
+#define BD_NO_CLOSE_FILES     02    /* Don't close all open files */
+#define BD_NO_REOPEN_STD_FDS  04    /* Don't reopen 0, 1, 2 to /dev/null */
+#define BD_NO_UMASK0          010   /* Don't do a umask(0) */
+#define BD_MAX_CLOSE          8193  /* Maximum file descriptors */
+
+/* Definations of logMessage(), logOpen(), logClose, and
+   readConfigLog() are omitted from this listing */
+
+/* Returns 0 on success, -1 on error */
+int becomeDaemon(int flags)
+{
+   int maxfd, fd;
+
+   switch (fork()) {                /* Become background process */
+      case -1:  return -1;
+      case 0:   break;
+      default: _exit(EXIT_SUCCESS); 
+   }
+
+   if (setsid() == -1)              /* Become leader of new session */
+      return -1;
+
+   switch (fork()) {                /* Ensure we are not session leader */
+      case -1: return -1;
+      case 0:  break;
+      default: _exit(EXIT_SUCCESS);
+   }
+
+   if (!(flags & BD_NO_UMASK0))
+      umask(0);                     /* Clear file mode creation mask */
+
+   if (!(flags & BD_NO_CHDIR))
+      chdir("/");                   /* Change to root directory */
+
+   if (!(flags & BD_NO_CLOSE_FILES)) {
+      maxfd = sysconf(_SC_OPEN_MAX);
+      if (maxfd == -1)
+         maxfd = BD_MAX_CLOSE;
+      
+      for (fd = 0; fd < maxfd; fd ++)
+         close(fd);                 /* Close all open files */
+   }
+
+   if (!(flags & BD_NO_REOPEN_STD_FDS)) {
+      close(STDIN_FILENO);          /* Reopen standard fd's to /dev/null */
+
+      fd = open("/dev/null", O_RDWR);
+
+      if (fd != STDIN_FILENO)
+         return -1;
+      if (dup2(STDIN_FILENO, STDOUT_FILENO) != STDOUT_FILENO)
+         return -1;
+      if (dup2(STDIN_FILENO, STDERR_FILENO) != STDERR_FILENO)
+         return -1;
+   }
+   return 0;
+}
+
+static void sighupHandler(int sig)
+{
+   hupReceived = 1;
+}
+
+void main(int argc, char *argv[])
+{
+   const int SLEEP_TIME = 15;
+   int count = 0;
+   int unslept;
+   struct sigaction sa;
+
+   sigemptyset(&sa.sa_mask);
+   sa.sa_flags = SA_RESTART;
+   sa.sa_handler = sighupHandler;
+   if (sigaction(SIGHUP, &sa, NULL) == -1)
+      syscall_error();
+
+   if (becomeDaemon(0) == -1)
+      syscall_error();
+
+   logOpen(LOG_FILE);
+   readConfigFile(CONFIG_FILE);
+
+   unslept = SLEEP_TIME;
+
+   for (;;) {
+      unslept = sleep(unslept);
+
+      if (hupReceived) {                  /* If we got SIGHUP... */
+         logClose();
+         logOpen(LOG_FILE);
+         readConfigFile(CONFIG_FILE);
+         hupReceived = 0;                 /* Get ready for next SIGHUP */
+      }
+      if (unslept == 0) {                 /* On completed interval */
+         count ++;
+         logMessage("Main: %d", count);
+         unslept = SLEEP_TIME;            /* Reset interval */
+      }
+   }
+}
